@@ -1,6 +1,6 @@
-?????? C# ? Unity3d ?????????, ?????????????, ???????????????????, (??:1.????????(???#,???)?????????? 2.??????????? 3.???????????, ???????, ???????????:?????? Weapon ??????????? Sword ? Gun????? Weapon ????????????? Attack ?????????????????????????????????? Attack ?? 4.??????????? 5.??????,?????? 6.??????????,???????500???)
-????????????:
-?????????????, ?????????????, ???????, ???????????
+假如你是一个 C# 和 Unity3d 高级游戏开发工程师, 你要参加一个游戏公司的面试, 我是一个面试官同时也是公司老板向你提问, (要求:1.请使用粗体小标题(不要有#,仅粗体)和有序列表来回答问题 2.每个要点都附上简明解释 3.包含一个简短的代码示例, 示例用文字说明, 参考在解释多态时的示例:假设你有一个 Weapon 类，并且不同的武器（如 Sword 和 Gun）都继承自 Weapon 类。你可以使用多态性来调用 Attack 方法，而不必关心当前使用的是哪种武器，因为每个武器类都会提供其特定的 Attack 实现 4.确保回答清晰且易于理解 5.回答直接开始,不用复述问题 6.回答要简略且重点明确,字数尽量控制在500字以内)
+下面请你来回答下面的问题:
+总结一下下面的技能系统代码
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
@@ -32,7 +32,7 @@ public class GameApp : MonoBehaviour
     }
 
     public void EnterGame() {
-        // ??UI
+        // 显示UI
         var canvas = GameObject.Find("Canvas");
         GameObject fightUiPrefab = ResMgr.Instance.LoadAssetSync<GameObject>("GUI/Prefabs/FightUI.prefab");
         var fightUi = GameObject.Instantiate(fightUiPrefab);
@@ -41,7 +41,7 @@ public class GameApp : MonoBehaviour
         fightUi.AddComponent<FightUICtrl>().Init();
         // end
 
-        // ????????
+        // 显示游戏战斗场景
         var gameObject = new GameObject();
         gameObject.name = "FightRoot";
         gameObject.AddComponent<FightMgr>().Init();
@@ -57,7 +57,7 @@ public class FightMgr : MonoBehaviour
 {
     public static FightMgr Instance = null;
 
-    // ???????,
+    // 战斗单元的管理, 
     private GM_Charactor player = null;
     private GM_Charactor enemy = null;
     // end
@@ -67,14 +67,14 @@ public class FightMgr : MonoBehaviour
     }
 
     public void LoadAndGotoMap(int mapId) {
-        // ????????
+        // 地图就创建出来了
         GameObject mapPrefab = ResMgr.Instance.LoadAssetSync<GameObject>($"Maps/Prefabs/{mapId}.prefab");
         var map = GameObject.Instantiate(mapPrefab);
         map.name = mapPrefab.name;
         map.transform.SetParent(this.transform, false);
         // end
 
-        // ?????? self
+        // 生成游戏角色 self
         GameObject selfPrefab = ResMgr.Instance.LoadAssetSync<GameObject>($"Charactors/Prefabs/Self/20001.prefab");
         var self = GameObject.Instantiate(selfPrefab);
         self.name = "B_20001";
@@ -88,7 +88,7 @@ public class FightMgr : MonoBehaviour
         this.player.Init(20001, true);
         // end
 
-        // ?????? other
+        // 生成游戏角色 other
         GameObject enemyPrefab = ResMgr.Instance.LoadAssetSync<GameObject>($"Charactors/Prefabs/Enemy/20001.prefab");
         var enemy = GameObject.Instantiate(enemyPrefab);
         enemy.name = "R_20001";
@@ -115,7 +115,7 @@ public class FightMgr : MonoBehaviour
 
     public GM_Charactor[] FindTargetsInArea(GM_Charactor center, float attackR)
     {
-        // ????????buff,?????attackR;
+        // 如果有扩大范围的buff,那么就扩大attackR;
         // end
 
         // test
@@ -133,17 +133,17 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-// buf ????;
+// buf 不断叠加;
 public class FightCalcResult
 {
     public float attack;
     public float defense;
 
-    // ?????????????; ...
+    // 有其它的属性，可以定义过来; ...
     public float attackR;
 }
 
-// ??????;
+// 策略层的核心;
 public class GM_Charactor : MonoBehaviour
 {
     public UserInfoData userData;
@@ -166,7 +166,7 @@ public class GM_Charactor : MonoBehaviour
         this.isSelf = isSelf;
         this.SetState(CharactorState.Idle);
 
-        // test,??????????????
+        // test,具体项目怎么同步，看具体的；
         EventMgr.Instance.Emit((int)GM_Event.UI, this.isSelf ? UIEvent.SyncSelfHp : UIEvent.SyncEnemyHp, this.fightData.hp);
         // end
     }
@@ -179,7 +179,7 @@ public class GM_Charactor : MonoBehaviour
     {
         if (this.buffTimeLine.StartBuff(buffId))
         {
-            // test, ??UI?Buff????
+            // test, 通知UI，Buff开启了。
             EventMgr.Instance.Emit((int)GM_Event.UI, UIEvent.BuffOpened);
         }
     }
@@ -228,10 +228,10 @@ using System.Reflection;
 using UnityEngine;
 
 
-// ???????????????????;
+// 每个配置表里面的点，对应的一个执行函数;
 public class SkillTimePoint {
-    public float exceTime; // ?????????????????????????;
-    public MethodInfo exceProc; // ????????;
+    public float exceTime; // 对应表格配置表里面的执行时间，每个技能都只生成一次;
+    public MethodInfo exceProc; // 具体的执行的函数; 
 
     public SkillTimePoint(float exceTime, MethodInfo exceProc) {
         this.exceTime = exceTime;
@@ -240,11 +240,11 @@ public class SkillTimePoint {
 }
 
 public class SkillTimeNode {
-    public float runTime; // ?????????,  ???--->??? or ?????;
-    public bool isExced; // ?????????;
-    public object udata; // ?????????????????;
+    public float runTime; // 具体的执行的时间点,  配置表--->百分比 or 具体的时间;
+    public bool isExced; // 是不是已经执行过了;
+    public object udata; // 用户传递的数据，保留项，目前没有用;
 
-    public SkillTimePoint timePoint; // ??????;
+    public SkillTimePoint timePoint; // 具体的执行点; 
 
     public SkillTimeNode(SkillTimePoint pt) {
         this.timePoint = pt;
@@ -255,17 +255,17 @@ public class SkillTimeNode {
 
 }
 
-// ????: ?????????;  --->?????????????????????????????;
-// ?????????????????,???????BuffTimeLine;
+// 前提假设: 每次只能放一个技能;  --->你有一个技能正在放，还没有结束，你再放一个技能是放不出来的;
+// 如果你的需求可以允许同时放多个技能,那么你可以参考BuffTimeLine;
 
 public struct SkillTimeLine {
-    private List<SkillTimeNode> timelineNode; // ??Time?????;
+    private List<SkillTimeNode> timelineNode; // 技能Time点执行队列;
     public GM_Charactor sender;
     public int skillId;
 
 
-    private bool isRunning; // ?????State ??,??Buff????;
-    private Action OnComplete; // ?????????;
+    private bool isRunning; // 最好搞一个State 枚举,参考Buff用的枚举;
+    private Action OnComplete; // 技能结束时候的回调;
 
     public void Init() {
         this.timelineNode = null;
@@ -307,7 +307,7 @@ public struct SkillTimeLine {
         }
 
         bool endFlag = true;
-        // ?????timeNode,??????????
+        // 遍历所有的timeNode,来检查时间，一次执行
         for (int i = 0; i < this.timelineNode.Count; i++) {
             if (this.timelineNode[i].isExced) {
                 continue;
@@ -324,8 +324,8 @@ public struct SkillTimeLine {
             endFlag = false;
         }
 
-        // ????????????????????????????BuffTimeLine?????????????????????????;
-        if (endFlag) {  // ??????????????????;  ???????,?????;
+        // 如果你设计到我们的技能等待一段时间才能放下一个，也可以和BuffTimeLine一样，专门搞个功能组件来维护所有技能的开启等待时间;
+        if (endFlag) {  // 技能释放完毕，可以开始下一个技能释放;  技能的等待时间,放到策略层;
             this.isRunning = false;
             this.timelineNode = null;
             if (this.OnComplete != null) {
@@ -351,7 +351,7 @@ public class GM_SkillMgr
 {
     public static GM_SkillMgr Instance = null;
 
-    // key  mainType + subKey;
+    // key  mainType + subKey;  
     private Dictionary<int, Dictionary<string, MethodInfo>> skillModelSet;
     private Dictionary<int, List<SkillTimePoint>> allSkillTimeLine = new Dictionary<int, List<SkillTimePoint>>();
     private List<Type> allSkillConfigType = new List<Type>();
@@ -370,7 +370,7 @@ public class GM_SkillMgr
                 continue;
             }
 
-            int key = skillModel.mainType + p.subType; // ??????key, -1, 1000000 + (-1) 0999999
+            int key = skillModel.mainType + p.subType; // 默认的处理的key, -1, 1000000 + (-1) 0999999
             Dictionary<string, MethodInfo> processFuncs = null;
             if (!this.skillModelSet.ContainsKey(key))
             {
@@ -427,8 +427,8 @@ public class GM_SkillMgr
         return null;
     }
 
-    // ??Skill?????? TimePointList(excel);
-    // ???????????????;
+    // 每个Skill都会对应一个 TimePointList(excel);
+    // 不用每次都去解析，可以缓存起来;
     private List<SkillTimePoint> ParserTimeLine(int skillId) {
         if (this.allSkillTimeLine.ContainsKey(skillId)) {
             return this.allSkillTimeLine[skillId];
@@ -439,9 +439,9 @@ public class GM_SkillMgr
 
 
         int key = mainType * 1000000;
-        key = key - 1; // ??key;
+        key = key - 1; // 默认key;
 
-        // ??funcMap?????????default??
+        // 先从funcMap找，没有找到，再用default里面
         Dictionary<string, MethodInfo> funMap = null;
         Dictionary<string, MethodInfo> defaultFunMap = null;
 
@@ -469,9 +469,9 @@ public class GM_SkillMgr
         if (ret == null || ret.timeLineStr == null) {
             return null;
         }
+        
 
-
-        // ???????
+        // 先生成默认的值
         List<SkillTimePoint> timeLine = new List<SkillTimePoint>();
         timeLine.Add(new SkillTimePoint(0, GetProcesserFunc("Init", funMap, defaultFunMap)));
         timeLine.Add(new SkillTimePoint(0, GetProcesserFunc("Begin", funMap, defaultFunMap)));
@@ -502,7 +502,7 @@ public class GM_SkillMgr
                 if (func != null) {
                     timeLine.Add(new SkillTimePoint(float.Parse(results[i + 1]), func));
                 }
-
+                
             }
 
         }
@@ -517,13 +517,13 @@ public class GM_SkillMgr
         List<SkillTimeNode> ret = new List<SkillTimeNode>();
         for (int i = 0; i < timePoints.Count; i++)
         {
-            ret.Add(new SkillTimeNode(timePoints[i])); // ?????
+            ret.Add(new SkillTimeNode(timePoints[i])); // 节点池优化
         }
 
         return ret;
     }
 
-    // ?????????????? config,????Id;
+    // 提供要给接口，供外面获取技能 config,根据技能Id;
     public object GetSkillConfig(int skillId)
     {
         object config = null;
@@ -546,7 +546,7 @@ using System.Collections.Generic;
 using UnityEngine;
 
 [SkillModel(1000000)]
-public class SkillAModel
+public class SkillAModel 
 {
     /*[SkillProcesser("MyCustom", 1)]
     public static void MyCostomProcesser_1000001(GM_Charactor sender, int skillId, object udata)
@@ -576,7 +576,7 @@ public class SkillAModel
         SkillAConfig config = ExcelDataMgr.Instance.GetConfigData<SkillAConfig>(skillId.ToString());
         FightCalcResult calcResult = new FightCalcResult();
         calcResult.attackR = config.AttackR;
-        sender.CalcFightBuff("AttackR", calcResult); // sender �����N��buff,ÿ��buff����attackR,��ô�Ϳ��Զ��ۼ�;
+        sender.CalcFightBuff("AttackR", calcResult); // sender Èç¹û´øN¸öbuff,Ã¿¸öbuff¶¼ÓÐattackR,ÄÇÃ´¾Í¿ÉÒÔ¶¼ÀÛ¼Ó;
 
         GM_Charactor[] targets = FightMgr.Instance.FindTargetsInArea(sender, calcResult.attackR);
         int count = targets.Length;
@@ -585,14 +585,889 @@ public class SkillAModel
         }
 
         float attack = (float)sender.fightData.attack;
-        attack = attack * config.DamageRate + config.FixDamage; // A�༼�ܵ�ģ��;
-
+        attack = attack * config.DamageRate + config.FixDamage; // AÀà¼¼ÄÜµÄÄ£°å;
+        
         calcResult.attack = attack;
-        // ���ӷ���������Buff��Attack���ܣ���ֻ��һ��;
+        // µþ¼Ó·¢ËÍÕâËùÓÐBuffµÄAttack¼¼ÄÜ£¬²»Ö»ÊÇÒ»¸ö;
         sender.CalcFightBuff("Attack", calcResult);
 
 
-        // �������е�Ŀ��
+        // ±éÀúËùÓÐµÄÄ¿±ê
+        for (int i = 0; i < count; i++)
+        {
+            calcResult.defense = targets[i].fightData.defense;
+            targets[i].CalcFightBuff("Defense", calcResult);
+
+            if (calcResult.attack > calcResult.defense)
+            {
+                targets[i].OnLoseHp((int)(calcResult.attack - calcResult.defense));
+            }
+        }
+    }
+
+    [SkillProcesser("End", -1)]
+    public static void DefaultEndProcesser(GM_Charactor sender, int skillId, object udata)
+    {
+        // Debug.Log($"DefaultEndProcesser Skill ID: {skillId}");
+    }
+
+    [SkillProcesser("TimeLine", -1)]
+    public static ParseTimeLineRet DefaultTimeLineStr(int skillId)
+    {
+        ParseTimeLineRet ret = new ParseTimeLineRet();
+
+        SkillAConfig config = ExcelDataMgr.Instance.GetConfigData<SkillAConfig>(skillId.ToString());
+        if (config == null) {
+            return null;
+        }
+
+        ret.SkillDuration = config.SkillDuration;
+        ret.timeLineStr = config.TimeLine;
+
+        return ret;
+    }
+}
+
+*********************************
+
+
+**技能系统代码总结**
+
+1. **架构概述**
+   - 代码采用了模块化设计，主要包含技能管理器（`GM_SkillMgr`）、战斗管理器（`FightMgr`）、角色管理（`GM_Charactor`）等模块，协同完成技能系统的逻辑处理。
+
+2. **初始化流程**
+   - `GameApp` 类中通过 `Init()` 方法初始化各个管理器，包括技能管理器、效果管理器等。通过 `EventMgr` 管理事件监听和分发，使各模块能够交互。
+   - 例如，通过事件监听UI的操作来处理技能或Buff的应用。
+
+3. **战斗场景创建**
+   - 通过 `FightMgr.LoadAndGotoMap()` 创建战斗场景，包括加载地图、生成玩家角色和敌人。角色初始化使用预设体进行实例化，并将其挂载到特定的游戏对象上。
+
+4. **技能逻辑**
+   - `GM_Charactor` 类中的 `StartSkill(int skillId)` 方法用于启动角色的技能，技能通过 `SkillTimeLine` 来管理时间节点和触发。
+   - 多个技能节点（如 `Init`、`Begin`、`Calc`）被定义和管理，以分阶段处理技能的具体效果。
+
+   示例：假设玩家角色有一个技能"Fireball"，通过 `SkillTimeLine` 管理技能执行流程，包含从"启动"到"命中"等多个阶段。
+
+5. **时间线管理**
+   - 技能系统使用 `SkillTimeLine` 和 `SkillTimeNode` 来控制技能的执行顺序。每个技能有不同的时间节点，通过这些节点逐步执行技能的效果，例如“初始状态”、“计算伤害”、“结束技能”等。
+
+   示例：在 `OnUpdate` 中根据时间节点执行技能效果，如调用 `DefaultCalcProcesser` 来计算攻击和防御之间的关系。
+
+6. **事件驱动**
+   - `EventMgr` 用于角色状态变化或技能释放完毕时发出事件，以更新UI或者触发其他逻辑。这种事件驱动使得各模块间的依赖性降低，提高了扩展性和维护性。
+
+7. **代码示例**
+   - 多态性示例：`GM_Charactor` 类的 `StartSkill(int skillId)` 使用了多态，通过技能ID找到对应的 `SkillTimeNode`，再执行不同的技能效果（例如 `Init`、`Begin`、`Calc`）。
+   ```csharp
+   public void StartSkill(int skillId)
+   {
+       if (this.skillTimeLine.StartSkill(this, skillId, () => {
+           this.ch.SetState(CharactorState.Idle);
+       }))
+       {
+           this.ch.SetState(CharactorState.Attack);
+       }
+   }
+   ```
+   在这里，通过 `skillId` 可以调用不同的技能，实现技能系统的多态性。不同的技能有不同的执行方法和效果。
+
+   *********************************
+
+   如果我想给角色加入基于FSM的AI机制, 该如何加, 举例说明
+
+*********************************
+
+**加入基于FSM（有限状态机）的AI机制**
+
+1. **设计角色状态枚举**
+   - 首先，我们需要为角色定义一些行为状态，例如“Idle”、“Patrol”、“Attack”、“Dead”等。可以通过 `enum` 来定义这些状态。
+   
+   示例：
+   ```csharp
+   public enum CharacterState
+   {
+       Idle,
+       Patrol,
+       Attack,
+       Dead
+   }
+   ```
+
+2. **创建AI状态机类**
+   - 我们可以创建一个 `FSM` 类来管理角色的状态转换。这个类将根据角色的当前状态以及游戏场景中的输入（例如敌人位置、生命值等）来决定下一个状态。
+   
+   示例：
+   ```csharp
+   public class FSM
+   {
+       private CharacterState currentState;
+
+       public FSM(CharacterState initialState)
+       {
+           currentState = initialState;
+       }
+
+       public void ChangeState(CharacterState newState)
+       {
+           currentState = newState;
+           OnStateEnter(newState);
+       }
+
+       public void OnStateEnter(CharacterState state)
+       {
+           // 处理进入每个状态时的行为
+           switch (state)
+           {
+               case CharacterState.Idle:
+                   Debug.Log("Entering Idle state");
+                   break;
+               case CharacterState.Patrol:
+                   Debug.Log("Entering Patrol state");
+                   break;
+               case CharacterState.Attack:
+                   Debug.Log("Entering Attack state");
+                   break;
+               case CharacterState.Dead:
+                   Debug.Log("Entering Dead state");
+                   break;
+           }
+       }
+
+       public void UpdateAI(GM_Charactor character)
+       {
+           // 根据状态更新AI逻辑
+           switch (currentState)
+           {
+               case CharacterState.Idle:
+                   // Idle逻辑
+                   if (character.CanSeeEnemy()) // 检测敌人
+                   {
+                       ChangeState(CharacterState.Attack);
+                   }
+                   break;
+               case CharacterState.Patrol:
+                   // Patrol逻辑
+                   Patrol(character);
+                   if (character.CanSeeEnemy())
+                   {
+                       ChangeState(CharacterState.Attack);
+                   }
+                   break;
+               case CharacterState.Attack:
+                   // Attack逻辑
+                   if (character.IsEnemyDead())
+                   {
+                       ChangeState(CharacterState.Idle);
+                   }
+                   else
+                   {
+                       character.PerformAttack();
+                   }
+                   break;
+               case CharacterState.Dead:
+                   // 死亡状态处理
+                   break;
+           }
+       }
+
+       private void Patrol(GM_Charactor character)
+       {
+           // 巡逻逻辑，移动角色
+           Debug.Log("Patrolling");
+           character.MoveToNextPatrolPoint();
+       }
+   }
+   ```
+
+3. **角色类中集成FSM**
+   - 在角色类中添加 `FSM` 对象，用于控制角色的行为状态。通过 `Update` 方法每帧更新AI逻辑。
+   
+   示例：
+   ```csharp
+   public class GM_Charactor : MonoBehaviour
+   {
+       private FSM aiStateMachine;
+
+       public void Init(int charactorId, bool isSelf)
+       {
+           this.aiStateMachine = new FSM(CharacterState.Idle); // 初始化为Idle状态
+       }
+
+       public void Update()
+       {
+           // 更新技能时间线
+           this.skillTimeLine.OnUpdate(Time.deltaTime);
+           this.buffTimeLine.OnUpdate(Time.deltaTime);
+
+           // 更新AI状态机
+           aiStateMachine.UpdateAI(this);
+       }
+
+       public bool CanSeeEnemy()
+       {
+           // 简单判断角色是否能看到敌人
+           return Vector3.Distance(this.transform.position, FightMgr.Instance.enemy.transform.position) < 10f;
+       }
+
+       public bool IsEnemyDead()
+       {
+           return FightMgr.Instance.enemy.fightData.hp <= 0;
+       }
+
+       public void PerformAttack()
+       {
+           StartSkill(1001); // 假设技能ID 1001是攻击技能
+       }
+
+       public void MoveToNextPatrolPoint()
+       {
+           // 假设巡逻点列表
+           Vector3 patrolPoint = new Vector3(5, 0, 5); 
+           this.transform.position = Vector3.MoveTowards(this.transform.position, patrolPoint, Time.deltaTime * 2f);
+       }
+   }
+   ```
+
+4. **状态转换逻辑**
+   - 通过 `FSM` 状态机，角色在不同的状态之间进行转换。当角色在巡逻时发现敌人，它会从 `Patrol` 状态切换到 `Attack` 状态；当敌人死亡后，角色会回到 `Idle` 状态。
+
+5. **代码示例：状态切换和AI更新**
+   在 `UpdateAI` 方法中，每帧都会检查角色当前的状态，并根据游戏环境来决定是否需要改变状态或执行动作。例如，当角色在 `Patrol` 状态时，它会执行巡逻逻辑；当角色进入 `Attack` 状态时，它会调用 `PerformAttack` 来执行攻击。
+
+   ```csharp
+   // 示例：AI自动切换状态
+   public void UpdateAI(GM_Charactor character)
+   {
+       switch (currentState)
+       {
+           case CharacterState.Idle:
+               if (character.CanSeeEnemy())
+               {
+                   ChangeState(CharacterState.Attack);
+               }
+               break;
+           case CharacterState.Patrol:
+               Patrol(character);
+               if (character.CanSeeEnemy())
+               {
+                   ChangeState(CharacterState.Attack);
+               }
+               break;
+           case CharacterState.Attack:
+               if (character.IsEnemyDead())
+               {
+                   ChangeState(CharacterState.Idle);
+               }
+               else
+               {
+                   character.PerformAttack();
+               }
+               break;
+       }
+   }
+   ```
+
+**总结**：通过引入FSM机制，角色的AI可以在不同状态之间切换，使其具有更加灵活的行为表现，例如巡逻、攻击、待机等。
+
+
+*********************************
+
+假如你是一个 C# 和 Unity3d 高级游戏开发工程师, 你要参加一个游戏公司的面试, 我是一个面试官同时也是公司老板向你提问, (要求:1.请使用粗体小标题(不要有#,仅粗体)和有序列表来回答问题 2.每个要点都附上简明解释 3.包含一个简短的代码示例, 示例用文字说明, 参考在解释多态时的示例:假设你有一个 Weapon 类，并且不同的武器（如 Sword 和 Gun）都继承自 Weapon 类。你可以使用多态性来调用 Attack 方法，而不必关心当前使用的是哪种武器，因为每个武器类都会提供其特定的 Attack 实现 4.确保回答清晰且易于理解 5.回答直接开始,不用复述问题 6.回答要简略且重点明确,字数尽量控制在500字以内)
+下面请你来回答下面的问题:
+总结一下下面的技能系统代码, 介绍一下各个代码的主要功能, 它们之间的关系, 以及战斗逻辑的主要流程
+using System.Collections;
+using System.Collections.Generic;
+using UnityEngine;
+
+public class GameApp : MonoBehaviour
+{
+    public static GameApp Instance = null;
+    public void Init() {
+        GameApp.Instance = this;
+        new GM_EffectMgr().Init();
+        new GM_SkillMgr().Init();
+        new GM_BuffMgr().Init();
+
+        EventMgr.Instance.AddListener((int)GM_Event.UI, this.OnUIEventProc);
+    }
+
+    private void OnUIEventProc(int eventType, object udata, object param = null)
+    {
+        switch ((int)udata)
+        {
+            case (int)UIEvent.Skill:
+                FightMgr.Instance.OnProcessSkill((int)param);
+                break;
+            case (int)UIEvent.Buff:
+                FightMgr.Instance.OnProcessBuff((int)param);
+                break;
+        }
+
+    }
+
+    public void EnterGame() {
+        // 显示UI
+        var canvas = GameObject.Find("Canvas");
+        GameObject fightUiPrefab = ResMgr.Instance.LoadAssetSync<GameObject>("GUI/Prefabs/FightUI.prefab");
+        var fightUi = GameObject.Instantiate(fightUiPrefab);
+        fightUi.name = fightUiPrefab.name;
+        fightUi.transform.SetParent(canvas.transform, false);
+        fightUi.AddComponent<FightUICtrl>().Init();
+        // end
+
+        // 显示游戏战斗场景
+        var gameObject = new GameObject();
+        gameObject.name = "FightRoot";
+        gameObject.AddComponent<FightMgr>().Init();
+        FightMgr.Instance.LoadAndGotoMap(10001);
+        // end
+    }
+}
+using System.Collections;
+using System.Collections.Generic;
+using UnityEngine;
+
+public class FightMgr : MonoBehaviour
+{
+    public static FightMgr Instance = null;
+
+    // 战斗单元的管理, 
+    private GM_Charactor player = null;
+    private GM_Charactor enemy = null;
+    // end
+
+    public void Init() {
+        FightMgr.Instance = this;
+    }
+
+    public void LoadAndGotoMap(int mapId) {
+        // 地图就创建出来了
+        GameObject mapPrefab = ResMgr.Instance.LoadAssetSync<GameObject>($"Maps/Prefabs/{mapId}.prefab");
+        var map = GameObject.Instantiate(mapPrefab);
+        map.name = mapPrefab.name;
+        map.transform.SetParent(this.transform, false);
+        // end
+
+        // 生成游戏角色 self
+        GameObject selfPrefab = ResMgr.Instance.LoadAssetSync<GameObject>($"Charactors/Prefabs/Self/20001.prefab");
+        var self = GameObject.Instantiate(selfPrefab);
+        self.name = "B_20001";
+        self.transform.SetParent(this.transform, false);
+        Vector3 pos = self.transform.position;
+        pos.x -= 3;
+        self.transform.position = pos;
+        self.transform.LookAt(new Vector3(1, 0, 0));
+
+        this.player = self.AddComponent<GM_Charactor>();
+        this.player.Init(20001, true);
+        // end
+
+        // 生成游戏角色 other
+        GameObject enemyPrefab = ResMgr.Instance.LoadAssetSync<GameObject>($"Charactors/Prefabs/Enemy/20001.prefab");
+        var enemy = GameObject.Instantiate(enemyPrefab);
+        enemy.name = "R_20001";
+        enemy.transform.SetParent(this.transform, false);
+        pos = enemy.transform.position;
+        pos.x += 3;enemy.transform.position = pos;
+        enemy.transform.position = pos;
+        enemy.transform.LookAt(new Vector3(-1, 0, 0));
+
+        this.enemy = enemy.AddComponent<GM_Charactor>();
+        this.enemy.Init(20001, false);
+        // end
+
+    }
+
+    public void OnProcessBuff(int buffId/*, int uid*/) {
+        this.player.StartBuff(buffId);
+    }
+
+    public void OnProcessSkill(int skillId/*, int uid*/)
+    {
+        this.player.StartSkill(skillId);
+    }
+
+    public GM_Charactor[] FindTargetsInArea(GM_Charactor center, float attackR)
+    {
+        // 如果有扩大范围的buff,那么就扩大attackR;
+        // end
+
+        // test
+        if (this.player == center)
+        {
+            return new GM_Charactor[] { this.enemy };
+        }
+        else
+        {
+            return new GM_Charactor[] { this.player };
+        }
+    }
+}
+using System.Collections;
+using System.Collections.Generic;
+using UnityEngine;
+
+// buf 不断叠加;
+public class FightCalcResult
+{
+    public float attack;
+    public float defense;
+
+    // 有其它的属性，可以定义过来; ...
+    public float attackR;
+}
+
+// 策略层的核心;
+public class GM_Charactor : MonoBehaviour
+{
+    public UserInfoData userData;
+    public AnimData ch;
+    public FightData fightData;
+
+    public SkillTimeLine skillTimeLine;
+    public BuffTimeLine buffTimeLine;
+
+    private bool isSelf = false;
+
+    public void Init(int charactorId, bool isSelf)
+    {
+        this.userData.Init(charactorId);
+        this.ch.Init(this);
+        this.fightData.Init(ref this.userData);
+        this.skillTimeLine.Init();
+        this.buffTimeLine.Init();
+
+        this.isSelf = isSelf;
+        this.SetState(CharactorState.Idle);
+
+        // test,具体项目怎么同步，看具体的；
+        EventMgr.Instance.Emit((int)GM_Event.UI, this.isSelf ? UIEvent.SyncSelfHp : UIEvent.SyncEnemyHp, this.fightData.hp);
+        // end
+    }
+
+    public void SetState(CharactorState state) {
+        this.ch.SetState(state);
+    }
+
+    public void StartBuff(int buffId)
+    {
+        if (this.buffTimeLine.StartBuff(buffId))
+        {
+            // test, 通知UI，Buff开启了。
+            EventMgr.Instance.Emit((int)GM_Event.UI, UIEvent.BuffOpened);
+        }
+    }
+
+    public void StartSkill(int skillId)
+    {
+        if (this.skillTimeLine.StartSkill(this, skillId, () =>
+        {
+            this.ch.SetState(CharactorState.Idle);
+        }))
+        {
+            this.ch.SetState(CharactorState.Attack);
+        }
+
+    }
+
+    public void OnLoseHp(int loseHp)
+    {
+
+        this.fightData.hp -= loseHp;
+
+
+        if (this.fightData.hp <= 0)
+        {
+            this.fightData.hp = 0;
+            this.SetState(CharactorState.Died);
+        }
+
+        Debug.Log($"Last HP: {this.fightData.hp}");
+        EventMgr.Instance.Emit((int)GM_Event.UI, this.isSelf ? UIEvent.SyncSelfHp : UIEvent.SyncEnemyHp, this.fightData.hp);
+    }
+
+    public void CalcFightBuff(string propName, FightCalcResult ret) {
+        this.buffTimeLine.CalcAllBuffsWithProp(propName, ret);
+    }
+
+    public void Update() {
+        this.skillTimeLine.OnUpdate(Time.deltaTime);
+        this.buffTimeLine.OnUpdate(Time.deltaTime);
+    }
+}
+using System;
+using System.Collections;
+using System.Collections.Generic;
+using System.Reflection;
+using UnityEngine;
+
+
+// 每个配置表里面的点，对应的一个执行函数;
+public class SkillTimePoint {
+    public float exceTime; // 对应表格配置表里面的执行时间，每个技能都只生成一次;
+    public MethodInfo exceProc; // 具体的执行的函数; 
+
+    public SkillTimePoint(float exceTime, MethodInfo exceProc) {
+        this.exceTime = exceTime;
+        this.exceProc = exceProc;
+    }
+}
+
+public class SkillTimeNode {
+    public float runTime; // 具体的执行的时间点,  配置表--->百分比 or 具体的时间;
+    public bool isExced; // 是不是已经执行过了;
+    public object udata; // 用户传递的数据，保留项，目前没有用;
+
+    public SkillTimePoint timePoint; // 具体的执行点; 
+
+    public SkillTimeNode(SkillTimePoint pt) {
+        this.timePoint = pt;
+        this.runTime = timePoint.exceTime;
+        this.isExced = false;
+        this.udata = null;
+    }
+
+}
+
+// 前提假设: 每次只能放一个技能;  --->你有一个技能正在放，还没有结束，你再放一个技能是放不出来的;
+// 如果你的需求可以允许同时放多个技能,那么你可以参考BuffTimeLine;
+
+public struct SkillTimeLine {
+    private List<SkillTimeNode> timelineNode; // 技能Time点执行队列;
+    public GM_Charactor sender;
+    public int skillId;
+
+
+    private bool isRunning; // 最好搞一个State 枚举,参考Buff用的枚举;
+    private Action OnComplete; // 技能结束时候的回调;
+
+    public void Init() {
+        this.timelineNode = null;
+        this.isRunning = false;
+        this.sender = null;
+        this.skillId = 0;
+    }
+
+    public bool StartSkill(GM_Charactor sender, int skillId, Action OnComplete)
+    {
+        if (this.isRunning) {
+            return false;
+        }
+        this.timelineNode = null;
+
+        List<SkillTimeNode> timeLine = GM_SkillMgr.Instance.GetSkillTimeNode(skillId);
+        if (timeLine == null) {
+            return false;
+        }
+
+        this.timelineNode = timeLine;
+        this.isRunning = true;
+        this.OnComplete = OnComplete;
+
+        this.skillId = skillId;
+        this.sender = sender;
+
+        return true;
+    }
+
+    public void OnUpdate(float dt) {
+        if (this.isRunning == false) {
+            return;
+        }
+
+        if (this.timelineNode == null) {
+            this.isRunning = false;
+            return;
+        }
+
+        bool endFlag = true;
+        // 遍历所有的timeNode,来检查时间，一次执行
+        for (int i = 0; i < this.timelineNode.Count; i++) {
+            if (this.timelineNode[i].isExced) {
+                continue;
+            }
+
+            this.timelineNode[i].runTime -= dt;
+            if (this.timelineNode[i].runTime <= 0) {
+                this.timelineNode[i].isExced = true;
+
+                object[] paramData = new object[] { this.sender, this.skillId, this.timelineNode[i].udata };
+                this.timelineNode[i].timePoint.exceProc.Invoke(null, paramData);
+            }
+
+            endFlag = false;
+        }
+
+        // 如果你设计到我们的技能等待一段时间才能放下一个，也可以和BuffTimeLine一样，专门搞个功能组件来维护所有技能的开启等待时间;
+        if (endFlag) {  // 技能释放完毕，可以开始下一个技能释放;  技能的等待时间,放到策略层;
+            this.isRunning = false;
+            this.timelineNode = null;
+            if (this.OnComplete != null) {
+                this.OnComplete();
+            }
+        }
+    }
+}
+
+
+using System;
+using System.Collections;
+using System.Collections.Generic;
+using System.Reflection;
+using UnityEngine;
+
+public class ParseTimeLineRet {
+    public string timeLineStr = null;
+    public float SkillDuration = 0.0f;
+}
+
+public class GM_SkillMgr
+{
+    public static GM_SkillMgr Instance = null;
+
+    // key  mainType + subKey;  
+    private Dictionary<int, Dictionary<string, MethodInfo>> skillModelSet;
+    private Dictionary<int, List<SkillTimePoint>> allSkillTimeLine = new Dictionary<int, List<SkillTimePoint>>();
+    private List<Type> allSkillConfigType = new List<Type>();
+
+    public void Init() {
+        GM_SkillMgr.Instance = this;
+        this.skillModelSet = new Dictionary<int, Dictionary<string, MethodInfo>>();
+        this.ScanAllSkillModelAndConfig();
+    }
+
+    private void ScaneOneSkillModel(Type t, SkillModel skillModel) {
+        MethodInfo[] funcs = t.GetMethods(BindingFlags.Static | BindingFlags.Public | BindingFlags.NonPublic);
+        for (int j = 0; j < funcs.Length; j++) {
+            SkillProcesser p = funcs[j].GetCustomAttribute<SkillProcesser>();
+            if (p == null) {
+                continue;
+            }
+
+            int key = skillModel.mainType + p.subType; // 默认的处理的key, -1, 1000000 + (-1) 0999999
+            Dictionary<string, MethodInfo> processFuncs = null;
+            if (!this.skillModelSet.ContainsKey(key))
+            {
+                processFuncs = new Dictionary<string, MethodInfo>();
+                this.skillModelSet.Add(key, processFuncs);
+            }
+            else { // key --->Init(if), Begin(else), End(else)
+                processFuncs = this.skillModelSet[key];
+            }
+
+            processFuncs.Add(p.funcName, funcs[j]);
+        }
+    }
+
+    private void ScaneOneSkillConfig(Type t, SkillConfig skillConfig)
+    {
+        this.allSkillConfigType.Add(t);
+    }
+
+    private void ScanAllSkillModelAndConfig() {
+        Assembly[] assemblies = AppDomain.CurrentDomain.GetAssemblies();
+        foreach (Assembly assembly in assemblies)
+        {
+            Type[] allTypes = assembly.GetTypes();
+            for (int i = 0; i < allTypes.Length; i++)
+            {
+                Type t = allTypes[i];
+                SkillModel skillModel = t.GetCustomAttribute<SkillModel>();
+                if (skillModel != null)
+                {
+                    this.ScaneOneSkillModel(t, skillModel);
+                }
+
+                SkillConfig skillConfig = t.GetCustomAttribute<SkillConfig>();
+                if (skillConfig != null)
+                {
+                    this.ScaneOneSkillConfig(t, skillConfig);
+                }
+            }
+        }
+    }
+
+    private MethodInfo GetProcesserFunc(string funcName, Dictionary<string, MethodInfo> funMap, Dictionary<string, MethodInfo> defaultFunMap)
+    {
+        if (funMap.ContainsKey(funcName))
+        {
+            return funMap[funcName];
+        }
+        if (defaultFunMap.ContainsKey(funcName))
+        {
+            return defaultFunMap[funcName];
+        }
+
+        return null;
+    }
+
+    // 每个Skill都会对应一个 TimePointList(excel);
+    // 不用每次都去解析，可以缓存起来;
+    private List<SkillTimePoint> ParserTimeLine(int skillId) {
+        if (this.allSkillTimeLine.ContainsKey(skillId)) {
+            return this.allSkillTimeLine[skillId];
+        }
+
+        int mainType = (int)(skillId / 1000000);
+        int subType = skillId % 1000000;
+
+
+        int key = mainType * 1000000;
+        key = key - 1; // 默认key;
+
+        // 先从funcMap找，没有找到，再用default里面
+        Dictionary<string, MethodInfo> funMap = null;
+        Dictionary<string, MethodInfo> defaultFunMap = null;
+
+        if (this.skillModelSet.ContainsKey(key)) {
+            defaultFunMap = this.skillModelSet[key];
+        }
+
+        if (this.skillModelSet.ContainsKey(skillId)) {
+            funMap = this.skillModelSet[skillId];
+        }
+        else {
+            funMap = defaultFunMap;
+        }
+        if (funMap == null) {
+            return null;
+        }
+
+        MethodInfo getTimeLineStr = this.GetProcesserFunc("TimeLine", funMap, defaultFunMap);
+        if (getTimeLineStr == null) {
+            return null;
+        }
+
+        object[] paramDatas = new object[] { skillId };
+        ParseTimeLineRet ret = (ParseTimeLineRet) getTimeLineStr.Invoke(null, paramDatas);
+        if (ret == null || ret.timeLineStr == null) {
+            return null;
+        }
+        
+
+        // 先生成默认的值
+        List<SkillTimePoint> timeLine = new List<SkillTimePoint>();
+        timeLine.Add(new SkillTimePoint(0, GetProcesserFunc("Init", funMap, defaultFunMap)));
+        timeLine.Add(new SkillTimePoint(0, GetProcesserFunc("Begin", funMap, defaultFunMap)));
+        timeLine.Add(new SkillTimePoint(ret.SkillDuration * 0.5f, GetProcesserFunc("Calc", funMap, defaultFunMap)));
+        timeLine.Add(new SkillTimePoint(ret.SkillDuration, GetProcesserFunc("End", funMap, defaultFunMap)));
+
+        string[] results = ret.timeLineStr.Split('|');
+        for (int i = 0; i < results.Length; i += 2) {
+            if (results[i + 0].Equals("Init"))
+            {
+                timeLine[0].exceTime = float.Parse(results[i + 1]);
+            }
+            else if (results[i + 0].Equals("Begin"))
+            {
+                timeLine[1].exceTime = float.Parse(results[i + 1]);
+            }
+            else if (results[i + 0].Equals("Calc"))
+            {
+                timeLine[2].exceTime = float.Parse(results[i + 1]);
+            }
+            else if (results[i + 0].Equals("End"))
+            {
+                timeLine[3].exceTime = float.Parse(results[i + 1]);
+            }
+            else
+            {
+                MethodInfo func = GetProcesserFunc(results[i + 0], funMap, defaultFunMap);
+                if (func != null) {
+                    timeLine.Add(new SkillTimePoint(float.Parse(results[i + 1]), func));
+                }
+                
+            }
+
+        }
+
+        this.allSkillTimeLine.Add(skillId, timeLine);
+        return timeLine;
+    }
+
+    public List<SkillTimeNode> GetSkillTimeNode(int skillId) {
+        List<SkillTimePoint> timePoints = this.ParserTimeLine(skillId);
+
+        List<SkillTimeNode> ret = new List<SkillTimeNode>();
+        for (int i = 0; i < timePoints.Count; i++)
+        {
+            ret.Add(new SkillTimeNode(timePoints[i])); // 节点池优化
+        }
+
+        return ret;
+    }
+
+    // 提供要给接口，供外面获取技能 config,根据技能Id;
+    public object GetSkillConfig(int skillId)
+    {
+        object config = null;
+
+        for (int i = 0; i < this.allSkillConfigType.Count; i++)
+        {
+            config = ExcelDataMgr.Instance.GetConfigData(this.allSkillConfigType[i], skillId.ToString());
+            if (config != null)
+            {
+                return config;
+            }
+        }
+
+        Debug.Log($"Get Skill Config {skillId} null!");
+        return null;
+    }
+}
+using System.Collections;
+using System.Collections.Generic;
+using UnityEngine;
+
+[SkillModel(1000000)]
+public class SkillAModel 
+{
+    /*[SkillProcesser("MyCustom", 1)]
+    public static void MyCostomProcesser_1000001(GM_Charactor sender, int skillId, object udata)
+    {
+        Debug.Log("MyCostomProcesser_1000001!");
+    }*/
+
+    [SkillProcesser("Init", -1)] // default;
+    public static void DefaultInitProcesser(GM_Charactor sender, int skillId, object udata) {
+        SkillAConfig config = ExcelDataMgr.Instance.GetConfigData<SkillAConfig>(skillId.ToString());
+        if (!config.SkillEffectName.Equals("default"))
+        {
+            GM_EffectMgr.Instance.PlayerSkillEffectAt(config.SkillEffectName, sender.transform.parent, sender.transform.position);
+        }
+    }
+
+    [SkillProcesser("Begin", -1)]
+    public static void DefaultBeginProcesser(GM_Charactor sender, int skillId, object udata)
+    {
+        // Debug.Log($"DefaultBeginProcesser Skill ID: {skillId}");
+    }
+
+    [SkillProcesser("Calc", -1)]
+    public static void DefaultCalcProcesser(GM_Charactor sender, int skillId, object udata)
+    {
+        Debug.Log($"DefaultCalcProcesser Skill ID: {skillId}");
+        SkillAConfig config = ExcelDataMgr.Instance.GetConfigData<SkillAConfig>(skillId.ToString());
+        FightCalcResult calcResult = new FightCalcResult();
+        calcResult.attackR = config.AttackR;
+        sender.CalcFightBuff("AttackR", calcResult); // sender Èç¹û´øN¸öbuff,Ã¿¸öbuff¶¼ÓÐattackR,ÄÇÃ´¾Í¿ÉÒÔ¶¼ÀÛ¼Ó;
+
+        GM_Charactor[] targets = FightMgr.Instance.FindTargetsInArea(sender, calcResult.attackR);
+        int count = targets.Length;
+        if (config.TargetMax > 0) {
+            count = (count > config.TargetMax) ? config.TargetMax : count;
+        }
+
+        float attack = (float)sender.fightData.attack;
+        attack = attack * config.DamageRate + config.FixDamage; // AÀà¼¼ÄÜµÄÄ£°å;
+        
+        calcResult.attack = attack;
+        // µþ¼Ó·¢ËÍÕâËùÓÐBuffµÄAttack¼¼ÄÜ£¬²»Ö»ÊÇÒ»¸ö;
+        sender.CalcFightBuff("Attack", calcResult);
+
+
+        // ±éÀúËùÓÐµÄÄ¿±ê
         for (int i = 0; i < count; i++)
         {
             calcResult.defense = targets[i].fightData.defense;
@@ -773,7 +1648,7 @@ public class GM_BuffMgr
         object[] paramsData = new object[] { buffId, ret };
         m.Invoke(null, paramsData);
     }
-}
+}  
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
@@ -822,14 +1697,13 @@ public class BuffAModel
     }
 }
 
-
 *********************************
 
-**????????**
+**技能系统代码总结**
 
-1. **`GameApp` ??????**
-   - **????????**?`GameApp` ???????????????????? `GM_SkillMgr`?`GM_BuffMgr` ? `GM_EffectMgr`?????????? `Init()` ???? `GameApp.Instance` ???UI??????
-   - **??????**?`EnterGame()` ????????UI???????????????????????????
+1. **`GameApp` 类的主要功能**
+   - **初始化与游戏入口**：`GameApp` 类是整个游戏的入口，负责初始化管理器（如 `GM_SkillMgr`、`GM_BuffMgr` 和 `GM_EffectMgr`）以及事件系统。通过 `Init()` 方法设置 `GameApp.Instance` 并注册UI事件监听器。
+   - **游戏场景加载**：`EnterGame()` 方法用于加载战斗UI和战斗场景，实例化角色和战斗管理器，为游戏开始做准备。
 
    ```csharp
    public void Init() {
@@ -841,22 +1715,22 @@ public class BuffAModel
    }
    ```
 
-2. **`FightMgr` ??????**
-   - **??????**??????????????????? `LoadAndGotoMap()` ?????????????
-   - **???Buff??**?`OnProcessSkill()` ? `OnProcessBuff()` ????????? `StartSkill` ? `StartBuff` ????????Buff????
+2. **`FightMgr` 类的主要功能**
+   - **战斗场景管理**：负责管理战斗场景中的角色和地图，通过 `LoadAndGotoMap()` 加载地图和生成玩家与敌人。
+   - **技能和Buff处理**：`OnProcessSkill()` 和 `OnProcessBuff()` 方法通过调用角色的 `StartSkill` 和 `StartBuff` 来触发对应技能或Buff的执行。
 
    ```csharp
    public void LoadAndGotoMap(int mapId) {
        GameObject mapPrefab = ResMgr.Instance.LoadAssetSync<GameObject>($"Maps/Prefabs/{mapId}.prefab");
        var map = GameObject.Instantiate(mapPrefab);
        map.transform.SetParent(this.transform, false);
-       // ???????
+       // 加载玩家和敌人
    }
    ```
 
-3. **`GM_Charactor` ??????**
-   - **?????????**???????????Buff???????????`StartSkill()` ???? `SkillTimeLine` ???????????
-   - **Buff??????**??? `BuffTimeLine` ? `SkillTimeLine`???????????????Buff???
+3. **`GM_Charactor` 类的主要功能**
+   - **角色的战斗状态管理**：角色的初始化、技能与Buff的管理都在此类中进行。`StartSkill()` 方法调用 `SkillTimeLine` 进行技能时间线的管理。
+   - **Buff与技能的叠加**：通过 `BuffTimeLine` 和 `SkillTimeLine`，处理角色在战斗中的技能释放和Buff效果。
 
    ```csharp
    public void StartSkill(int skillId) {
@@ -868,9 +1742,9 @@ public class BuffAModel
    }
    ```
 
-4. **`SkillTimeLine` ??????**
-   - **???????**??????????????? `SkillTimeNode` ? `SkillTimePoint` ?????????????? `Init`?`Begin`?`Calc` ? `End`??
-   - **???????**?`OnUpdate()` ????????????????????????????????????
+4. **`SkillTimeLine` 类的主要功能**
+   - **技能时间线管理**：用于管理技能的执行顺序，使用 `SkillTimeNode` 和 `SkillTimePoint` 来处理技能各个阶段的执行（如 `Init`、`Begin`、`Calc` 和 `End`）。
+   - **技能执行与更新**：`OnUpdate()` 每帧调用，检查时间节点并执行相应的技能行为，保证技能按照时间线顺序执行。
 
    ```csharp
    public void OnUpdate(float dt) {
@@ -883,9 +1757,9 @@ public class BuffAModel
    }
    ```
 
-5. **`GM_SkillMgr` ? `GM_BuffMgr` ?????**
-   - **???Buff??**?`GM_SkillMgr` ?????????????`GM_BuffMgr` ????Buff????????????? `MethodInfo` ??????????????????Buff???
-   - **???????**??? `ParserTimeLine()` ??????????????????????????????????
+5. **`GM_SkillMgr` 和 `GM_BuffMgr` 的主要功能**
+   - **技能和Buff管理**：`GM_SkillMgr` 负责解析和缓存技能时间线，`GM_BuffMgr` 负责处理Buff的生成和属性计算。两者通过 `MethodInfo` 动态调用各自的逻辑，实现不同的技能和Buff效果。
+   - **技能时间线解析**：通过 `ParserTimeLine()` 方法，解析技能的执行顺序并缓存时间节点，减少反复解析带来的性能消耗。
 
    ```csharp
    public List<SkillTimeNode> GetSkillTimeNode(int skillId) {
@@ -894,99 +1768,43 @@ public class BuffAModel
    }
    ```
 
-6. **?????????**
-   - ??????`GameApp` ?????????
-   - `FightMgr` ????????????????????
-   - ?????????????? `EventMgr` ?????`FightMgr` ?? `GM_Charactor` ????Buff?????
-   - `GM_Charactor` ??? `SkillTimeLine` ? `BuffTimeLine` ?????Buff??????
-   - ?????? `OnUpdate`???????????Buff???
+6. **战斗逻辑的主要流程**
+   - 游戏开始时，`GameApp` 初始化各种管理器。
+   - `FightMgr` 加载战斗场景与角色，角色开始巡逻或战斗。
+   - 当玩家或敌人释放技能时，通过 `EventMgr` 调度事件，`FightMgr` 调用 `GM_Charactor` 的技能或Buff处理方法。
+   - `GM_Charactor` 类中的 `SkillTimeLine` 和 `BuffTimeLine` 处理技能或Buff的具体效果。
+   - 每帧更新通过 `OnUpdate`，持续更新角色的技能和Buff状态。
+
 
    *********************************
-
-**????????**
-
-1. **?????????**
-   1. **`GameApp`??????**
-      - ????????????????Buff??????
-      - ?????????UI?????????Buff????
-      - ??UI??????
-      - **????**?`EnterGame()` ?? UI ?????????
-
-   2. **`FightMgr`???????**
-      - ???????????????
-      - ?????????????????
-      - ????? Buff ?????
-      - **????**?`LoadAndGotoMap(int mapId)` ????????????????
-
-   3. **`GM_Charactor`??????**
-      - ???????????????? Buff ????
-      - ???????? `Idle`?`Attack`?`Died`??
-      - ????????? Buff?
-      - **????**?`StartSkill(int skillId)` ???????????????
-
-   4. **`SkillTimeLine`???????**
-      - ???????????????????????????????????
-      - ?????????????????
-      - **????**?`OnUpdate(float dt)` ???????????????
-
-   5. **`GM_SkillMgr`???????**
-      - ????????????????????????
-      - ????????????????????
-      - **????**?`GetSkillTimeNode(int skillId)` ????????????????
-
-2. **???????**
-   1. **`GameApp` ??????????**
-      - `GameApp` ???????????????UI?
-      - `FightMgr` ????????????????????
-      - `GM_Charactor` ????????????????????/ Buff ????
-      - `SkillTimeLine` ? `BuffTimeLine` ??????? Buff ??????
-
-3. **?????????**
-   1. **???**?
-      - `GameApp.Init()` ?????????? UI ???
-      - `FightMgr.LoadAndGotoMap()` ?????????????????
-   2. **??/Buff??**?
-      - ?? `EventMgr` ????? UI ?????????????
-      - `FightMgr.OnProcessSkill()` ?? `GM_Charactor.StartSkill()` ?????
-   3. **????**?
-      - `SkillTimeLine.StartSkill()` ????????????????????????????
-      - `GM_Charactor` ?? `SkillTimeLine` ? `BuffTimeLine` ?????? Buff ????
-
-**?????????**
-```csharp
-public void OnProcessSkill(int skillId)
-{
-    this.player.StartSkill(skillId); // ????????
-}
-```
-? `OnProcessSkill` ????????? `StartSkill` ????????????????????????????????????????
+   讲一下代码中buff和skill之前的区别是什么,  靠什么实现的这个区别, 给出具体的代码说明
 
 *********************************
 
-**Buff?Skill?????????**
+**Buff和Skill之间的区别及其实现**
 
-1. **????**
-   - **Skill????**????????????????????AI??????????????????????????????????????????????????????????????
-   - **Buff???/???**?Buff????????????????????????????????????????????Buff???????????????????????????????
+1. **概念区别**
+   - **Skill（技能）**：技能是一种主动触发的行为，通常由玩家或AI角色手动启动，包含具体的攻击动作、技能效果等。技能通常有明确的持续时间、执行顺序，并且会影响战斗中的目标（如攻击、治疗等）。
+   - **Buff（增益/减益）**：Buff是指作用于角色的状态效果，可以是主动或被动的，持续一段时间，可能会增强或削弱角色的属性。Buff往往可以叠加或持续影响角色的多个属性，例如增加防御力或攻击力。
 
-2. **???????**
-   - **Skill?Buff???????????????????**?
-     - **????**?
-       - **Skill**????????AI???????
-       - **Buff**?????????????????????????
-     - **?????**?
-       - **Skill**????????????????????????????
-       - **Buff**?????????????????????????????????????
-   - **????**?
-     - `GM_SkillMgr` ? `GM_BuffMgr` ???????Buff????????????????????????????Buff?
+2. **区别的实现方式**
+   - **Skill和Buff的主要区别在于它们的触发机制和影响范围**：
+     - **触发方式**：
+       - **Skill**：通过玩家操作或AI逻辑主动触发。
+       - **Buff**：通常是在某些条件下自动触发，并且可以叠加或持续。
+     - **影响的属性**：
+       - **Skill**：通常会直接改变战斗中的动作（如发动攻击、使用技能等）。
+       - **Buff**：影响角色的状态属性（如攻击力、防御力、生命值等），并可能与技能效果叠加。
+   - **实现机制**：
+     - `GM_SkillMgr` 和 `GM_BuffMgr` 分别管理技能和Buff，通过不同的管理器、数据结构和处理函数来区分和执行技能与Buff。
 
-3. **??????**
-   - **???? (`SkillTimeLine` ? `GM_SkillMgr`)**
-     - **`SkillTimeLine`** ???????????????????????
-     - **`GM_SkillMgr`** ???????????????
-     - ?? `StartSkill()` ???????? `OnUpdate()` ?????????????????????????????????
-
-   - **????**?`SkillTimeLine`??`StartSkill`??
+3. **具体代码实现**
+   - **技能系统 (`SkillTimeLine` 和 `GM_SkillMgr`)**
+     - **`SkillTimeLine`** 管理技能的时间点，按时间顺序依次触发技能效果。
+     - **`GM_SkillMgr`** 负责管理技能的配置和处理逻辑。
+     - 通过 `StartSkill()` 启动技能，并通过 `OnUpdate()` 更新时间节点，依次执行技能的不同部分（如初始化、攻击计算、结束）。
+   
+   - **代码示例**（`SkillTimeLine`中的`StartSkill`）：
      ```csharp
      public bool StartSkill(GM_Charactor sender, int skillId, Action OnComplete)
      {
@@ -1004,124 +1822,129 @@ public void OnProcessSkill(int skillId)
      }
      ```
 
-   - **Buff?? (`BuffTimeLine` ? `GM_BuffMgr`)**
-     - **`BuffTimeLine`** ?? Buff ??????????????????
-     - **`GM_BuffMgr`** ?? Buff ??????????? Buff ??????????
-     - ?? `StartBuff()` ?? Buff???? `CalcFightBuff()` ??? Buff ?????????
+   - **Buff系统 (`BuffTimeLine` 和 `GM_BuffMgr`)**
+     - **`BuffTimeLine`** 管理 Buff 的触发与计算，持续作用于角色的属性。
+     - **`GM_BuffMgr`** 负责 Buff 的配置和处理逻辑，控制 Buff 如何影响角色的属性。
+     - 通过 `StartBuff()` 启动 Buff，并通过 `CalcFightBuff()` 来应用 Buff 对角色的属性变化。
 
-   - **????**?`BuffTimeLine`??`StartBuff`??
+   - **代码示例**（`BuffTimeLine`中的`StartBuff`）：
      ```csharp
      public void StartBuff(int buffId)
      {
          if (this.buffTimeLine.StartBuff(buffId))
          {
-             // ??UI?Buff???
+             // 通知UI，Buff已开启
              EventMgr.Instance.Emit((int)GM_Event.UI, UIEvent.BuffOpened);
          }
      }
      ```
 
-4. **?????????**
-   - **???Buff?????????????**?
-     - **?? (`GM_SkillMgr`)**??????? `SkillProcesser` ????????????????
-     - **Buff (`GM_BuffMgr`)**??????? `BuffProcesser` ????????Buff??????
-
-   - **??????**?`GM_SkillMgr`??????????
+4. **处理函数的调用机制**
+   - **技能和Buff的处理通过反射机制实现区别**：
+     - **技能 (`GM_SkillMgr`)**：通过反射调用 `SkillProcesser` 标记的函数，处理技能的各个阶段。
+     - **Buff (`GM_BuffMgr`)**：通过反射调用 `BuffProcesser` 标记的函数，处理Buff的不同效果。
+   
+   - **技能反射调用**（`GM_SkillMgr`中调用技能处理器）：
      ```csharp
      MethodInfo func = GetProcesserFunc("Calc", funMap, defaultFunMap);
      func.Invoke(null, new object[] { sender, skillId, udata });
      ```
 
-   - **Buff????**?`GM_BuffMgr`???Buff?????
+   - **Buff反射调用**（`GM_BuffMgr`中调用Buff处理器）：
      ```csharp
      MethodInfo m = this.GetProcesserFuncByBuffId(buffId, "Defense");
      m.Invoke(null, new object[] { buffId, ret });
      ```
 
-**???**
-- **????**?????????? `StartSkill()` ???? Buff ??? `StartBuff()` ????????
-- **?????**?????????????????Buff ????????????????????
-- **????**???? Buff ???? `GM_SkillMgr` ? `GM_BuffMgr` ??????????????????????????
+**总结：**
+- **触发方式**：技能是通过手动调用 `StartSkill()` 触发，而 Buff 是通过 `StartBuff()` 自动触发并叠加。
+- **影响的不同**：技能影响的是即时动作（如攻击），Buff 持续影响角色的属性（如攻击力、防御力）。
+- **代码实现**：技能和 Buff 分别通过 `GM_SkillMgr` 和 `GM_BuffMgr` 管理，并通过反射调用不同的处理函数来实现两者的区别。
+
 
 *********************************
 
-???????**Skill???????????**??**Buff???/?????????????**????????????????????????????
+skill不允许同时执行 但是buff允许多个同时执行, 在代码哪里体现的, 具体说明一下
 
-### 1. **Skill??????????????**
+*********************************
 
-??????????????????????? `SkillTimeLine` ?? `isRunning` ???????`isRunning` ????????????????????????????????????????
+在这套系统中，**Skill（技能）不允许同时执行**，而**Buff（增益/减益效果）允许多个同时执行**。这两个功能的差异主要体现在它们的状态管理和执行逻辑上。
 
-#### **?????**
+### 1. **Skill（技能）不允许同时执行的实现**
 
-? `SkillTimeLine` ?? `StartSkill` ???`isRunning` ???? `true`???????????????????????????????????? `false`??????????
+技能的执行被限制为每次只能执行一个，主要是通过 `SkillTimeLine` 中的 `isRunning` 变量来控制的。`isRunning` 标志位用于跟踪当前是否有技能正在执行，当一个技能未执行完毕时，新的技能无法开始。
+
+#### **代码说明：**
+
+在 `SkillTimeLine` 中的 `StartSkill` 方法，`isRunning` 被设置为 `true`，表示技能正在运行。如果在技能执行期间尝试启动另一个技能，方法会直接返回 `false`，拒绝执行新的技能。
 
 ```csharp
 public struct SkillTimeLine
 {
-    private bool isRunning; // ?????????????
+    private bool isRunning; // 标识当前是否有技能正在运行
 
     public bool StartSkill(GM_Charactor sender, int skillId, Action OnComplete)
     {
-        if (this.isRunning) // ????????????????????
+        if (this.isRunning) // 如果技能已经在运行，则不允许启动新的技能
         {
-            return false; // ??????????
+            return false; // 阻止多个技能同时执行
         }
 
-        // ??????
+        // 开始新的技能
         this.timelineNode = GM_SkillMgr.Instance.GetSkillTimeNode(skillId);
         if (timelineNode == null) return false;
 
-        this.isRunning = true; // ??????true?????????
+        this.isRunning = true; // 设置标志位为true，表示技能开始执行
         this.sender = sender;
         this.skillId = skillId;
         this.OnComplete = OnComplete;
 
-        return true; // ??true????????
+        return true; // 返回true表示技能成功启动
     }
 
     public void OnUpdate(float dt)
     {
         if (!isRunning || timelineNode == null) return;
 
-        // ???????????
+        // 遍历技能时间节点并执行
         bool endFlag = true;
         for (int i = 0; i < timelineNode.Count; i++)
         {
-            // ??????????????
+            // 如果当前节点已经执行过，跳过
             if (timelineNode[i].isExced) continue;
 
-            // ????????????????
+            // 检查是否可以执行当前时间点的逻辑
             timelineNode[i].runTime -= dt;
             if (timelineNode[i].runTime <= 0)
             {
                 timelineNode[i].isExced = true;
-                // ????????????
+                // 执行对应时间点的技能逻辑
                 timelineNode[i].timePoint.exceProc.Invoke(null, new object[] { sender, skillId });
             }
 
-            endFlag = false; // ????????????????
+            endFlag = false; // 如果还有未执行的时间点，继续循环
         }
 
-        if (endFlag) // ?????????????
+        if (endFlag) // 所有节点执行完毕，技能结束
         {
-            isRunning = false; // ??????????????
+            isRunning = false; // 重置状态，允许下一个技能执行
             OnComplete?.Invoke();
         }
     }
 }
 ```
 
-#### **???**?
-- **`isRunning`**????????????????????????`isRunning` ??? `true`??????????????????????? `isRunning` ??? `false`???????????
-- **?????**???? `StartSkill` ????? `isRunning`??????????????
+#### **关键点**：
+- **`isRunning`**：这个布尔值控制技能的唯一性。当一个技能启动时，`isRunning` 设置为 `true`，直到该技能的所有时间节点都执行完毕后，才会将 `isRunning` 重置为 `false`，允许下一个技能执行。
+- **单技能机制**：通过在 `StartSkill` 方法中检查 `isRunning`，确保一次只能执行一个技能。
 
-### 2. **Buff???/??????????????**
+### 2. **Buff（增益/减益）允许多个同时执行的实现**
 
-??????Buff ?????? Buff ????????Buff ??????? `BuffTimeLine` ? `BuffTimeNode` ??Buff?????? Buff ?????????????
+与技能不同，Buff 系统允许多个 Buff 同时作用于角色。Buff 系统的核心通过 `BuffTimeLine` 或 `BuffTimeNode` 管理Buff的叠加，每个 Buff 都是独立管理的，互不冲突。
 
-#### **?????**
+#### **代码说明：**
 
-? `BuffTimeLine` ? `GM_BuffMgr` ??Buff ????? `isRunning` ??????????????????? Buff ?????????????????? Buff ?????????????????????? `CalcFightBuff` ?????
+在 `BuffTimeLine` 或 `GM_BuffMgr` 中，Buff 不会有类似 `isRunning` 这样的标志位来限制并发执行。因此，多个 Buff 可以同时执行并叠加其效果。例如，多个 Buff 可以影响角色的属性（攻击力、防御力等），通过 `CalcFightBuff` 叠加计算。
 
 ```csharp
 public class GM_Charactor : MonoBehaviour
@@ -1130,34 +1953,34 @@ public class GM_Charactor : MonoBehaviour
 
     public void StartBuff(int buffId)
     {
-        // ???? Buff ????
-        if (this.buffTimeLine.StartBuff(buffId)) // ?? Buff ????
+        // 允许多个 Buff 叠加执行
+        if (this.buffTimeLine.StartBuff(buffId)) // 每个 Buff 独立启动
         {
-            // ?? UI?Buff ???
+            // 通知 UI，Buff 已开启
             EventMgr.Instance.Emit((int)GM_Event.UI, UIEvent.BuffOpened);
         }
     }
 }
 ```
 
-`BuffTimeLine` ????????? `isRunning` ?????? Buff ??????????????????
+`BuffTimeLine` 中没有类似技能中的 `isRunning` 标志位，说明 Buff 是可以在不互相干扰的情况下同时执行。
 
-#### **BuffTimeLine?Buff???????**
+#### **BuffTimeLine的Buff叠加处理逻辑：**
 ```csharp
 public class BuffTimeLine
 {
-    private List<BuffNode> activeBuffs; // ???????Buff??
+    private List<BuffNode> activeBuffs; // 当前正在生效的Buff列表
 
     public bool StartBuff(int buffId)
     {
         BuffNode newBuff = GM_BuffMgr.Instance.CreateBuffNode(buffId);
-        activeBuffs.Add(newBuff); // ??Buff?????????Buff??
+        activeBuffs.Add(newBuff); // 新的Buff加入列表，允许多个Buff并存
         return true;
     }
 
     public void CalcAllBuffsWithProp(string propName, FightCalcResult ret)
     {
-        // ????????Buff????????????
+        // 遍历所有生效中的Buff，计算其对指定属性的影响
         foreach (var buff in activeBuffs)
         {
             GM_BuffMgr.Instance.CalcFightBuffWithProp(buff.buffId, propName, ret);
@@ -1166,157 +1989,274 @@ public class BuffTimeLine
 }
 ```
 
-#### **???**?
-- **`activeBuffs` ??**??? Buff ??????????????? `activeBuffs` ?????????? Buff ?????????????????
-- **`CalcAllBuffsWithProp()`**??????????????? Buff????????????? Buff ?????????
+#### **关键点**：
+- **`activeBuffs` 列表**：每个 Buff 都会作为一个独立的节点被添加到 `activeBuffs` 列表中。这意味着多个 Buff 可以同时存在并影响角色的不同属性。
+- **`CalcAllBuffsWithProp()`**：在计算角色属性时，会遍历所有 Buff，逐一叠加其效果。这也表明 Buff 可以同时影响角色。
 
-### 3. **??**
+### 3. **总结**
 
-- **Skill ???????**??? `SkillTimeLine` ?? `isRunning` ?????????????????????????????????????
-- **Buff ????????**?`BuffTimeLine` ???????????? Buff ?? `activeBuffs` ???????????????????? `activeBuffs`??? Buff ??????????????
+- **Skill 不允许同时执行**：通过 `SkillTimeLine` 中的 `isRunning` 标志位确保每次只能有一个技能运行，任何新的技能触发都必须等待当前技能结束。
+- **Buff 允许多个同时执行**：`BuffTimeLine` 没有类似的限制，允许多个 Buff 通过 `activeBuffs` 列表并行执行并叠加影响角色属性。通过遍历 `activeBuffs`，每个 Buff 的效果都会应用到角色属性上。
 
 
 *********************************
 
-**Skill?Buff??????????????**
 
-?????????**Skill** ? **Buff** ????????????
-- **Skill** ?????????????????
-- **Buff** ??????????????????????
+如果我想给角色加入基于FSM的AI机制, 让AI自己决定是否攻击, 自己释放技能, 该如何加, 举例说明, 
 
-?????????????????????
 
-### 1. Skill???????
+*********************************
 
-**Skill** ???????? `SkillTimeLine` ??? **`isRunning`** ??? `StartSkill()` ???`SkillTimeLine` ????????????????????????
+**为角色加入基于FSM的AI机制，并让AI自主决定是否攻击、释放技能**
 
-- **`SkillTimeLine` ???**?
-  - `isRunning` ????????????????????????
-  - ? `isRunning` ? `true` ??`StartSkill()` ??????? `false`????????????
+要实现一个基于FSM（有限状态机）的AI机制，使得AI能够根据环境和状态自行决定是否攻击或释放技能，可以按照以下步骤进行：
 
-**????**?
+### 1. **设计角色的状态枚举**
+首先，为角色设计几种不同的状态，例如：`Idle`、`Patrol`、`Attack`、`Chase`、`Dead`等。这些状态可以帮助AI根据不同的条件进行状态切换。
+
 ```csharp
-public struct SkillTimeLine {
-    private List<SkillTimeNode> timelineNode; // ?????????
-    public GM_Charactor sender;
-    public int skillId;
-    private bool isRunning; // ??????????
-    private Action OnComplete; // ???????
+public enum AIState
+{
+    Idle,
+    Patrol,
+    Chase,
+    Attack,
+    Dead
+}
+```
 
-    public void Init() {
-        this.timelineNode = null;
-        this.isRunning = false;
-        this.sender = null;
-        this.skillId = 0;
-    }
+### 2. **创建AI的FSM类**
+FSM类将负责角色的状态管理和状态转换。根据角色当前的状态和环境条件（如敌人位置、血量等），AI会在不同的状态之间切换。
 
-    public bool StartSkill(GM_Charactor sender, int skillId, Action OnComplete)
+```csharp
+public class FSM
+{
+    private AIState currentState;
+
+    public FSM(AIState initialState)
     {
-        if (this.isRunning) {
-            return false; // ????????????false
-        }
-        this.timelineNode = null;
-
-        List<SkillTimeNode> timeLine = GM_SkillMgr.Instance.GetSkillTimeNode(skillId);
-        if (timeLine == null) {
-            return false;
-        }
-
-        this.timelineNode = timeLine;
-        this.isRunning = true; // ???????????
-        this.OnComplete = OnComplete;
-        this.skillId = skillId;
-        this.sender = sender;
-
-        return true;
+        currentState = initialState;
     }
 
-    public void OnUpdate(float dt) {
-        if (this.isRunning == false) {
-            return;
+    public void ChangeState(AIState newState)
+    {
+        currentState = newState;
+        OnStateEnter(newState);
+    }
+
+    public void OnStateEnter(AIState state)
+    {
+        switch (state)
+        {
+            case AIState.Idle:
+                Debug.Log("Entering Idle state");
+                break;
+            case AIState.Patrol:
+                Debug.Log("Entering Patrol state");
+                break;
+            case AIState.Chase:
+                Debug.Log("Entering Chase state");
+                break;
+            case AIState.Attack:
+                Debug.Log("Entering Attack state");
+                break;
+            case AIState.Dead:
+                Debug.Log("Entering Dead state");
+                break;
         }
+    }
 
-        // ??????????????
-        bool endFlag = true;
-        for (int i = 0; i < this.timelineNode.Count; i++) {
-            if (this.timelineNode[i].isExced) {
-                continue;
-            }
-
-            this.timelineNode[i].runTime -= dt;
-            if (this.timelineNode[i].runTime <= 0) {
-                this.timelineNode[i].isExced = true;
-
-                object[] paramData = new object[] { this.sender, this.skillId, this.timelineNode[i].udata };
-                this.timelineNode[i].timePoint.exceProc.Invoke(null, paramData);
-            }
-
-            endFlag = false;
-        }
-
-        if (endFlag) {
-            this.isRunning = false; // ??????????????????????????
-            this.timelineNode = null;
-            this.OnComplete?.Invoke();
+    public void UpdateAI(GM_Charactor character)
+    {
+        switch (currentState)
+        {
+            case AIState.Idle:
+                if (character.CanSeeEnemy()) 
+                {
+                    ChangeState(AIState.Chase); // 看到敌人，切换到追击状态
+                }
+                break;
+            case AIState.Patrol:
+                character.Patrol(); // AI 巡逻逻辑
+                if (character.CanSeeEnemy())
+                {
+                    ChangeState(AIState.Chase); // 看到敌人，切换到追击状态
+                }
+                break;
+            case AIState.Chase:
+                character.MoveTowardsEnemy();
+                if (character.InAttackRange())
+                {
+                    ChangeState(AIState.Attack); // 如果进入攻击范围，切换到攻击状态
+                }
+                break;
+            case AIState.Attack:
+                if (character.CanAttack())
+                {
+                    character.PerformAttack(); // 执行攻击
+                }
+                if (character.IsEnemyDead())
+                {
+                    ChangeState(AIState.Idle); // 敌人死亡，回到Idle状态
+                }
+                break;
+            case AIState.Dead:
+                // AI死亡状态，不再执行任何操作
+                break;
         }
     }
 }
 ```
 
-**??**?
-- **`isRunning`**?????????????????? `isRunning` ? `true` ???????????
-- **`OnUpdate()`**????????????????? `isRunning` ??? `false`??????????????
+### 3. **在角色类中集成FSM**
+角色类需要一个 `FSM` 对象来管理状态，并且每帧更新AI逻辑，根据当前状态采取行动。
 
-### 2. Buff????????
-
-**Buff** ????????? Buff ????????????? `BuffTimeLine` ? `GM_BuffMgr` ?????? Buff ???????? Buff?
-
-- **`BuffTimeLine`** ???????
-  - `BuffTimeLine` ???? `List<BuffNode>` ?????????????? Buff?
-  - ? `StartBuff()` ???????? Buff ????? `List<BuffNode>` ???????????? Buff?
-
-**????**??? `BuffTimeLine` ??????????
 ```csharp
-public class BuffTimeLine {
-    private List<BuffNode> activeBuffs; // ???????Buff
+public class GM_Charactor : MonoBehaviour
+{
+    private FSM aiStateMachine;
+    public GM_Charactor enemy; // 假设敌人角色
+    private float attackRange = 5f;
 
-    public void Init() {
-        this.activeBuffs = new List<BuffNode>();
+    public void Init(int charactorId, bool isSelf)
+    {
+        aiStateMachine = new FSM(AIState.Idle); // 初始状态为Idle
     }
 
-    public bool StartBuff(int buffId) {
-        BuffNode newBuff = GM_BuffMgr.Instance.CreateBuffNode(buffId);
-        if (newBuff == null) {
-            return false;
-        }
-        this.activeBuffs.Add(newBuff); // ??Buff????Buff???
-        return true;
+    public void Update()
+    {
+        // 更新技能和Buff时间线
+        this.skillTimeLine.OnUpdate(Time.deltaTime);
+        this.buffTimeLine.OnUpdate(Time.deltaTime);
+
+        // 更新AI状态机
+        aiStateMachine.UpdateAI(this);
     }
 
-    public void OnUpdate(float dt) {
-        for (int i = 0; i < activeBuffs.Count; i++) {
-            BuffNode buff = activeBuffs[i];
-            buff.Update(dt);
-            if (buff.IsExpired()) {
-                activeBuffs.RemoveAt(i);
-                i--;
-            }
-        }
+    // AI行为辅助方法
+    public bool CanSeeEnemy()
+    {
+        // 检测是否能看到敌人
+        return Vector3.Distance(this.transform.position, enemy.transform.position) < 10f;
+    }
+
+    public bool InAttackRange()
+    {
+        // 判断是否在攻击范围内
+        return Vector3.Distance(this.transform.position, enemy.transform.position) < attackRange;
+    }
+
+    public bool CanAttack()
+    {
+        // 检测是否可以攻击（比如冷却时间等因素）
+        return true; // 简化判断
+    }
+
+    public bool IsEnemyDead()
+    {
+        return enemy.fightData.hp <= 0;
+    }
+
+    public void MoveTowardsEnemy()
+    {
+        // 向敌人移动
+        this.transform.position = Vector3.MoveTowards(this.transform.position, enemy.transform.position, Time.deltaTime * 2f);
+    }
+
+    public void PerformAttack()
+    {
+        // 执行攻击逻辑
+        StartSkill(1001); // 假设技能ID 1001为攻击技能
+    }
+
+    public void Patrol()
+    {
+        // 巡逻逻辑，角色在场景中移动
+        Debug.Log("AI Patrolling...");
     }
 }
 ```
 
-**??**?
-- **`activeBuffs` ??**???????? Buff????? Buff ?????????????
-- **`StartBuff()`**????????? Buff ????? `activeBuffs` ????????????? Buff?
-- **`OnUpdate()`**??????? Buff??????????????????????
+### 4. **AI状态切换逻辑**
+FSM状态机会自动根据条件切换。例如：
+- 当AI处于 `Idle` 状态时，如果能看到敌人，则切换到 `Chase` 状态，开始追击敌人。
+- 进入 `Chase` 状态后，AI会移动到敌人所在位置，当接近敌人时切换到 `Attack` 状态并开始攻击。
+- 如果敌人被击败，则AI回到 `Idle` 状态，准备进行下一次行动。
 
-### ???Skill?Buff?????
-1. **Skill?????**??? `SkillTimeLine` ?? `isRunning` ?????????????????????????????????????
-   - ?????`SkillTimeLine.StartSkill()` ???? `isRunning` ???
+### 5. **状态机的更新和行为触发**
+在 `UpdateAI()` 方法中，每帧更新AI的状态，根据当前状态采取不同的行动。
 
-2. **Buff?????**?`BuffTimeLine` ?????? `List<BuffNode>` ???????? Buff ???????????
-   - ?????`BuffTimeLine.StartBuff()` ???? `activeBuffs.Add(newBuff)` ?? Buff ????? Buff ????
+```csharp
+public void UpdateAI(GM_Charactor character)
+{
+    switch (currentState)
+    {
+        case AIState.Idle:
+            if (character.CanSeeEnemy())
+            {
+                ChangeState(AIState.Chase);
+            }
+            break;
+        case AIState.Patrol:
+            character.Patrol();
+            if (character.CanSeeEnemy())
+            {
+                ChangeState(AIState.Chase);
+            }
+            break;
+        case AIState.Chase:
+            character.MoveTowardsEnemy();
+            if (character.InAttackRange())
+            {
+                ChangeState(AIState.Attack);
+            }
+            break;
+        case AIState.Attack:
+            if (character.CanAttack())
+            {
+                character.PerformAttack();
+            }
+            if (character.IsEnemyDead())
+            {
+                ChangeState(AIState.Idle);
+            }
+            break;
+        case AIState.Dead:
+            // AI死亡状态，停止一切行动
+            break;
+    }
+}
+```
 
-???????????? Skill ? Buff ??????????????Skill ?????? Buff ?????????????????????????????
+### 6. **扩展性**
+通过这种基于FSM的机制，AI能够根据状态自动执行逻辑，例如攻击、追击、巡逻等。同时，这种设计非常灵活，可以通过修改状态或添加新的状态来扩展AI的行为逻辑。例如：
+- 可以增加**逃跑状态**（`Flee`），当AI血量较低时切换到逃跑状态。
+- 可以加入**技能选择逻辑**，根据不同情况决定释放不同的技能。
 
+### 7. **代码示例：AI自主攻击的实现**
+```csharp
+public void UpdateAI(GM_Charactor character)
+{
+    switch (currentState)
+    {
+        case AIState.Chase:
+            character.MoveTowardsEnemy();
+            if (character.InAttackRange())
+            {
+                ChangeState(AIState.Attack);
+            }
+            break;
+        case AIState.Attack:
+            if (character.CanAttack())
+            {
+                character.PerformAttack();
+            }
+            if (character.IsEnemyDead())
+            {
+                ChangeState(AIState.Idle);
+            }
+            break;
+    }
+}
+```
+在这里，当AI追击敌人并进入攻击范围时，会切换到攻击状态并执行攻击。
