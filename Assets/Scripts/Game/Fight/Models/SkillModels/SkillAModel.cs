@@ -30,19 +30,19 @@ public class SkillAModel
     public static void DefaultCalcProcesser(GM_Charactor sender, int skillId, object udata)
     {
         Debug.Log($"DefaultCalcProcesser Skill ID: {skillId}");
-        SkillAConfig config = ExcelDataMgr.Instance.GetConfigData<SkillAConfig>(skillId.ToString());
+        SkillAConfig skillAconfig = ExcelDataMgr.Instance.GetConfigData<SkillAConfig>(skillId.ToString());
         FightCalcResult calcResult = new FightCalcResult();
-        calcResult.attackR = config.AttackR;
+        calcResult.attackR = skillAconfig.AttackR;
         sender.CalcFightBuff("AttackR", calcResult); // sender 如果带N个buff,每个buff都有attackR,那么就可以都累加;
 
         GM_Charactor[] targets = FightMgr.Instance.FindTargetsInArea(sender, calcResult.attackR);
         int count = targets.Length;
-        if (config.TargetMax > 0) {
-            count = (count > config.TargetMax) ? config.TargetMax : count;
+        if (skillAconfig.TargetMax > 0) {
+            count = (count > skillAconfig.TargetMax) ? skillAconfig.TargetMax : count;
         }
 
         float attack = (float)sender.fightData.attack;
-        attack = attack * config.DamageRate + config.FixDamage; // A类技能的模板;
+        attack = attack * skillAconfig.DamageRate + skillAconfig.FixDamage; // A类技能的模板;
         
         calcResult.attack = attack;
         // 叠加发送这所有Buff的Attack技能，不只是一个;
